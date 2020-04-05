@@ -31,10 +31,10 @@ def get_route():
             if 'visited' in addresses_dict[other_address_id]:
                 continue
 
-            current_distance = _get_distance(float(current_address['lon']),
-                                             float(current_address['lat']),
-                                             float(other_address['lon']),
-                                             float(other_address['lat']))
+            current_distance = _get_distance(float(current_address['lat']),
+                                             float(current_address['lon']),
+                                             float(other_address['lat']),
+                                             float(other_address['lon']))
 
             # If the distance to the current address is less than the last closes distance,
             # add it as the current closes distance
@@ -44,7 +44,6 @@ def get_route():
 
         # Add the closest address to the route, and mark it is as 'visited'
         if closest_distance_id:
-            print('append',closest_distance_id)
             route.append({
                 'id': closest_distance_id,
                 'lon': addresses_dict[closest_distance_id]['lon'],
@@ -71,24 +70,24 @@ def _get_addresses_dict():
             address = address.split(',')
             id = address[0]
             addresses_dict[id] = {
-                'lon': address[1],
-                'lat': address[2],
+                'lat': address[1],
+                'lon': address[2][:-1],
             }
 
     return addresses_dict
 
 
-def _get_distance(lon1, lat1, lon2, lat2):
+def _get_distance(lat1, lon1, lat2, lon2):
     # approximate radius of earth in km
     R = 6373.0
 
-    lon1 = radians(lon1)
     lat1 = radians(lat1)
-    lon2 = radians(lon2)
+    lon1 = radians(lon1)
     lat2 = radians(lat2)
+    lon2 = radians(lon2)
 
-    dlon = lon2 - lon1
     dlat = lat2 - lat1
+    dlon = lon2 - lon1
 
     a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
     c = 2 * atan2(sqrt(a), sqrt(1 - a))
@@ -99,9 +98,9 @@ def _get_distance(lon1, lat1, lon2, lat2):
 def write_to_csv(journey):
     with open('route.csv', 'w') as out_file:
         csv_writer = csv.writer(out_file)
-        csv_writer.writerow(['id', 'lon', 'lat', 'distance'])
+        csv_writer.writerow(['id', 'lat,lon', 'distance'])
         for address in journey:
-            csv_writer.writerow([address['id'], address['lon'], address['lat'], address['distance']])
+            csv_writer.writerow([address['id'], address['lat'] + ',' + address['lon'], address['distance']])
 
 
 if __name__ == '__main__':
